@@ -5,6 +5,14 @@ class Asset < ApplicationRecord
   mount_uploader :file, AssetUploader
   attr_accessor :extensions
   validates :extensions, length: { minimum: 1 }
+  validate :validate_formats
+
+
+  def validate_formats
+    extensions.each do |ext|
+      errors.add(:extensions, "Sorry, we can't convert file into this format - #{ext}") unless $extension_whitelist.include?(ext)
+    end
+  end
 
   def convert
     asset = MiniMagick::Image.open(file.path)
